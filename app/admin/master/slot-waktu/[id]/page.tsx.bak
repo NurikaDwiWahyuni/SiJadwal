@@ -1,0 +1,42 @@
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import SlotForm from "../SlotForm";
+import { updateSlot } from "../actions";
+
+export default async function SlotEditPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const slot = await prisma.slotWaktu.findUnique({ where: { id } });
+
+  if (!slot) {
+    notFound();
+  }
+
+  const boundUpdateSlot = updateSlot.bind(null, id);
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-xl font-semibold text-zinc-900">Edit Slot Waktu</h1>
+        <p className="text-sm text-zinc-500">
+          Perbarui data slot &quot;{slot.namaSlot}&quot;.
+        </p>
+      </div>
+      <SlotForm
+        action={boundUpdateSlot}
+        submitLabel="Simpan Perubahan"
+        defaultValues={{
+          hari: slot.hari,
+          urutan: slot.urutan,
+          namaSlot: slot.namaSlot,
+          jenisSlot: slot.jenisSlot,
+          jamMulai: slot.jamMulai,
+          jamSelesai: slot.jamSelesai,
+        }}
+      />
+    </div>
+  );
+}

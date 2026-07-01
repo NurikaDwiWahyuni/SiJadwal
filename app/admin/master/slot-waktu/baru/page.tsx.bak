@@ -1,0 +1,41 @@
+import { prisma } from "@/lib/prisma";
+import SlotForm from "../SlotForm";
+import { createSlot } from "../actions";
+import { HARI_LIST, type HariType } from "@/lib/constants";
+
+export default async function SlotBaruPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ hari?: string }>;
+}) {
+  const { hari } = await searchParams;
+  const selectedHari: HariType = HARI_LIST.includes(hari as HariType)
+    ? (hari as HariType)
+    : "SENIN";
+
+  const lastSlot = await prisma.slotWaktu.findFirst({
+    where: { hari: selectedHari },
+    orderBy: { urutan: "desc" },
+  });
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-xl font-semibold text-zinc-900">Tambah Slot Waktu</h1>
+        <p className="text-sm text-zinc-500">Isi data slot waktu baru.</p>
+      </div>
+      <SlotForm
+        action={createSlot}
+        submitLabel="Simpan Slot"
+        defaultValues={{
+          hari: selectedHari,
+          urutan: (lastSlot?.urutan ?? 0) + 1,
+          namaSlot: "",
+          jenisSlot: "PELAJARAN",
+          jamMulai: null,
+          jamSelesai: null,
+        }}
+      />
+    </div>
+  );
+}

@@ -1,0 +1,299 @@
+// Prisma schema — Sistem Penjadwalan Sekolah (Roster)
+// Mengacu pada requirement-sistem-jadwal-sekolah.md (Revisi 2)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum StatusGuru {
+  PNS
+  HONOR
+}
+
+enum Hari {
+  SENIN
+  SELASA
+  RABU
+  KAMIS
+  JUMAT
+  SABTU
+}
+
+enum Semester {
+  GANJIL
+  GENAP
+}
+
+enum JenisSlot {
+  PELAJARAN
+  NON_PELAJARAN
+}
+
+enum JenisPiket {
+  HARIAN
+  KARAKTER
+}
+
+enum KelasMapelMode {
+  ALL
+  CUSTOM
+  EXCLUDE
+}
+
+enum Role {
+  ADMIN
+  OPERATOR
+}
+
+// ─────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  nama         String
+  role         Role     @default(OPERATOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// MASTER DATA
+// ─────────────────────────────────────────────
+
+model Guru {
+  id                String   @id @default(cuid())
+  kodeGuru          String   @unique
+  nama              String
+  status            StatusGuru
+  hariTidakTersedia Json?
+  maksJp            Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  kelasWali       Kelas[]           @relation("WaliKelas")
+  ekstrakurikuler Ekstrakurikuler[] @relation("PembinaEkskul")
+  bebanMengajar   BebanMengajar[]
+  jadwal          Jadwal[]
+  piket           PiketGuru[]
+
+  @@map("guru")
+}
+
+model Kelas {
+  id          String   @id @default(cuid())
+  namaKelas   String   @unique
+  waliKelasId String?
+  waliKelas   Guru?    @relation("WaliKelas", fields: [waliKelasId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bebanMengajar BebanMengajar[]
+  jadwal        Jadwal[]
+  slotTerkunci  SlotTerkunci[]
+  mapelConfig   KelasMapelConfig?
+
+  @@map("kelas")
+}
+
+model Mapel {
+  id                  String   @id @default(cuid())
+  namaMapel           String
+  kodeMapel           String   @unique
+  jpMaksBerurutan     Int      @default(2)
+  jumlahPertemuanMaks Int      @default(3)
+  aktif               Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  bebanMengajar BebanMengajar[]
+  slotTerkunci  SlotTerkunci[]
+
+  @@map("mapel")
+}
+
+model Ekstrakurikuler {
+  id         String   @id @default(cuid())
+  nama       String
+  pembinaId  String?
+  pembina    Guru?    @relation("PembinaEkskul", fields: [pembinaId], references: [id])
+  hari       Hari
+  jamMulai   String
+  jamSelesai String
+  lokasi     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  slotTerkunci SlotTerkunci[]
+
+  @@map("ekstrakurikuler")
+}
+
+model SlotWaktu {
+  id         String    @id @default(cuid())
+  hari       Hari
+  urutan     Int
+  namaSlot   String
+  jenisSlot  JenisSlot
+  jamMulai   String?
+  jamSelesai String?
+
+  jadwal       Jadwal[]
+  slotTerkunci SlotTerkunci[]
+
+  @@unique([hari, urutan])
+  @@map("slot_waktu")
+}
+
+model PeriodeAkademik {
+  id          String   @id @default(cuid())
+  tahun       String
+  semester    Semester
+  statusAktif Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  bebanMengajar BebanMengajar[]
+  jadwal        Jadwal[]
+  slotTerkunci  SlotTerkunci[]
+  piket         PiketGuru[]
+
+  @@unique([tahun, semester])
+  @@map("periode_akademik")
+}
+
+model IdentitasSekolah {
+  id             Int      @id @default(1)
+  namaSekolah    String
+  npsn           String?
+  nss            String?
+  alamat         String?
+  email          String?
+  namaPemerintah String?
+  namaDinas      String?
+  kecamatan      String?
+  tahunPelajaran String?
+  semester       Semester @default(GANJIL)
+  kurikulum      String?
+  logoKiri       String?  @db.LongText
+  logoKanan      String?  @db.LongText
+
+  @@map("identitas_sekolah")
+}
+
+model PengaturanTtd {
+  id         Int     @id @default(1)
+  namaKepsek String
+  nipKepsek  String?
+  namaWaka   String
+  nipWaka    String?
+
+  @@map("pengaturan_ttd")
+}
+
+model KelasMapelConfig {
+  id        String         @id @default(cuid())
+  kelasId   String         @unique
+  kelas     Kelas          @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+  mode      KelasMapelMode @default(ALL)
+  mapelIds  Json?
+  updatedAt DateTime       @updatedAt
+
+  @@map("kelas_mapel_config")
+}
+
+// ─────────────────────────────────────────────
+// BEBAN MENGAJAR
+// ─────────────────────────────────────────────
+
+model BebanMengajar {
+  id                String          @id @default(cuid())
+  guruId            String
+  guru              Guru            @relation(fields: [guruId], references: [id])
+  kelasId           String
+  kelas             Kelas           @relation(fields: [kelasId], references: [id])
+  mapelId           String
+  mapel             Mapel           @relation(fields: [mapelId], references: [id])
+  jp                Int
+  periodeAkademikId String
+  periodeAkademik   PeriodeAkademik @relation(fields: [periodeAkademikId], references: [id])
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  jadwal Jadwal[]
+
+  @@unique([guruId, kelasId, mapelId, periodeAkademikId])
+  @@map("beban_mengajar")
+}
+
+// ─────────────────────────────────────────────
+// PENJADWALAN
+// ─────────────────────────────────────────────
+
+model SlotTerkunci {
+  id                String           @id @default(cuid())
+  label             String?
+  mapelId           String?
+  mapel             Mapel?           @relation(fields: [mapelId], references: [id])
+  ekstrakurikulerId String?
+  ekstrakurikuler   Ekstrakurikuler? @relation(fields: [ekstrakurikulerId], references: [id])
+  kelasId           String?
+  kelas             Kelas?           @relation(fields: [kelasId], references: [id])
+  hari              Hari
+  slotWaktuMulaiId  String
+  slotWaktuMulai    SlotWaktu        @relation(fields: [slotWaktuMulaiId], references: [id])
+  durasiSlot        Int              @default(1)
+  periodeAkademikId String
+  periodeAkademik   PeriodeAkademik  @relation(fields: [periodeAkademikId], references: [id])
+  createdAt         DateTime         @default(now())
+
+  @@map("slot_terkunci")
+}
+
+model Jadwal {
+  id                String          @id @default(cuid())
+  periodeAkademikId String
+  periodeAkademik   PeriodeAkademik @relation(fields: [periodeAkademikId], references: [id])
+  bebanMengajarId   String
+  bebanMengajar     BebanMengajar   @relation(fields: [bebanMengajarId], references: [id])
+  guruId            String
+  guru              Guru            @relation(fields: [guruId], references: [id])
+  kelasId           String
+  kelas             Kelas           @relation(fields: [kelasId], references: [id])
+  hari              Hari
+  slotWaktuId       String
+  slotWaktu         SlotWaktu       @relation(fields: [slotWaktuId], references: [id])
+  isLocked          Boolean         @default(false)
+  isPecah11         Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+
+  @@unique([periodeAkademikId, kelasId, hari, slotWaktuId], name: "uniq_kelas_slot")
+  @@unique([periodeAkademikId, guruId, hari, slotWaktuId], name: "uniq_guru_slot")
+  @@map("jadwal")
+}
+
+model PiketGuru {
+  id                String          @id @default(cuid())
+  guruId            String
+  guru              Guru            @relation(fields: [guruId], references: [id])
+  hari              Hari
+  jenisPiket        JenisPiket      @default(HARIAN)
+  periodeAkademikId String
+  periodeAkademik   PeriodeAkademik @relation(fields: [periodeAkademikId], references: [id])
+
+  // 1 guru bisa punya 2 baris: 1 HARIAN + 1 KARAKTER
+  @@unique([guruId, periodeAkademikId, jenisPiket])
+  @@map("piket_guru")
+}
