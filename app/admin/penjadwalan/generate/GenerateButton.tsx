@@ -150,7 +150,7 @@ export default function GenerateButton({ lockedCount }: { lockedCount: number })
       )}
 
       {/* ── PHASE 5: CONSENT ── */}
-      {tampilConsent && (!s5.result || (s5.result.gagal.length > 0 && !s5.result.rejected)) && (
+      {tampilConsent && (!s5.result || s5.result.gagal.length > 0) && (
         <ApprovalPanel
           cases={approvalCases}
           onSubmit={submitApproval}
