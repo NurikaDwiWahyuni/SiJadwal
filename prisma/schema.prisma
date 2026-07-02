@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ─────────────────────────────────────────────
@@ -187,8 +188,8 @@ model IdentitasSekolah {
   tahunPelajaran String?
   semester       Semester @default(GANJIL)
   kurikulum      String?
-  logoKiri       String?  @db.LongText
-  logoKanan      String?  @db.LongText
+  logoKiri       String?  @db.Text
+  logoKanan      String?  @db.Text
 
   @@map("identitas_sekolah")
 }

@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sistem Penjadwalan Sekolah",
+  title: "SiJadwal — Sistem Penjadwalan Sekolah",
   description: "Cek jadwal mengajar, piket, dan ekstrakurikuler guru",
+  icons: { icon: "/logo-app.png" },
 };
 
 export default function RootLayout({

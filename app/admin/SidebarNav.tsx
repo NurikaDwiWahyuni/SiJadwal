@@ -80,15 +80,8 @@ export default function SidebarNav({
       <div className="px-5 pt-6 pb-5" style={{ borderBottom: "1px solid var(--sb-border)" }}>
         <div className="flex items-center gap-3 mb-4">
           {/* Icon sekolah */}
-          <div style={{
-            width: 38, height: 38,
-            borderRadius: 10,
-            background: "linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)",
-            boxShadow: "0 4px 12px rgba(245,158,11,0.3)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 18, flexShrink: 0,
-          }}>
-            🏫
+          <div style={{ width: 38, height: 38, borderRadius: 10, overflow: "hidden", flexShrink: 0 }}>
+            <img src="/logo-app.png" alt="SiJadwal" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
           <div>
             <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", lineHeight: 1.2 }}>SiJadwal</p>
