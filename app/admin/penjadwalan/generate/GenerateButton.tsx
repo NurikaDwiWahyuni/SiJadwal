@@ -167,7 +167,7 @@ export default function GenerateButton({ lockedCount }: { lockedCount: number })
           <div>
             <p className="font-bold text-amber-900 text-sm">Safe Mode aktif</p>
             <p className="text-sm text-amber-800 mt-1">
-              {lastResult.rejectMessage ?? "Hasil generate lebih buruk. Jadwal sebelumnya dipertahankan."}
+              {lastResult?.rejectMessage ?? "Hasil generate lebih buruk. Jadwal sebelumnya dipertahankan."}
             </p>
           </div>
         </div>
