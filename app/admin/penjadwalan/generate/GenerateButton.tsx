@@ -278,7 +278,7 @@ function PhaseCard({
   const cls  = WARNA_CLS[warna];
   const done = state.result != null || !!state.error;
   const gagal = state.result?.gagal ?? [];
-  const rejected = !!state.result?.rejected;
+  const rejected = false;
   const nomorLabel = ["①", "②", "③", "④", "⑤"][nomor - 1];
 
   return (
@@ -315,7 +315,7 @@ function PhaseCard({
         {/* Hasil ditolak Safe Mode */}
         {rejected && (
           <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
-            {state.result!.rejectMessage}
+            Hasil generate lebih buruk. Jadwal sebelumnya dipertahankan.
           </div>
         )}
 
