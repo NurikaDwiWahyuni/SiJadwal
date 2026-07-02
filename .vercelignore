@@ -1,0 +1,5 @@
+_deprecated/
+node_modules/
+.next/
+*.sst
+*.meta
