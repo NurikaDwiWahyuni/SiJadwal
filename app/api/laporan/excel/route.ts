@@ -411,7 +411,7 @@ export async function GET() {
 
   // ── PIKET PER HARI ─────────────────────────────────────────────────────────
   // Header hari piket harian
-  const hariPiketOrder = HARI_LIST as HariType[];
+  const hariPiketOrder = [...HARI_LIST] as HariType[];
   const colPerHari = Math.max(2, Math.floor((lastCol - colPiket + 1) / hariPiketOrder.length));
 
   // Tulis header hari piket
