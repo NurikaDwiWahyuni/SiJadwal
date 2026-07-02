@@ -161,7 +161,7 @@ export default function GenerateButton({ lockedCount }: { lockedCount: number })
       )}
 
       {/* ── Safe Mode: hasil fase terakhir ditolak ── */}
-      {lastResult?.rejected && (
+      {false && (
         <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-5 flex gap-3 items-start">
           <span className="text-2xl shrink-0">🛡️</span>
           <div>
