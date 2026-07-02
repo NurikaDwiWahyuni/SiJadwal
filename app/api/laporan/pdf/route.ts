@@ -195,7 +195,7 @@ export async function GET() {
   // Tiga kolom: Kode Guru | Ekstrakurikuler | Piket
   // Kita bangun sebagai tabel terpisah di bawah tabel utama, mengikuti layout Excel
 
-  const hariPiketOrder = HARI_LIST as HariType[];
+  const hariPiketOrder = [...HARI_LIST] as HariType[];
 
   // Piket Harian per hari
   const piketHarianHTML = hariPiketOrder.map((h) => {
