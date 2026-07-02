@@ -160,19 +160,6 @@ export default function GenerateButton({ lockedCount }: { lockedCount: number })
         />
       )}
 
-      {/* ── Safe Mode: hasil fase terakhir ditolak (v2) ── */}
-      {false && (
-        <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-5 flex gap-3 items-start">
-          <span className="text-2xl shrink-0">🛡️</span>
-          <div>
-            <p className="font-bold text-amber-900 text-sm">Safe Mode aktif</p>
-            <p className="text-sm text-amber-800 mt-1">
-              {lastResult?.rejectMessage ?? "Hasil generate lebih buruk. Jadwal sebelumnya dipertahankan."}
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* ── Sukses ── */}
       {selesai && (
         <div className="rounded-xl border-2 border-green-200 bg-green-50 p-5 space-y-4">
